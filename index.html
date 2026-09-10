@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- Google Identity Services no longer needed; Firebase handles Google Login. -->
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<title>আমার টাকা — Money Tracker</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,"Noto Sans Bengali",sans-serif;background:#f4f6f8;color:#17202a}
+.container{max-width:1100px;margin:auto;padding:28px 18px}.head{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:25px}
+h1{margin:0;font-size:30px}.sub{color:#667085;margin-top:6px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.card{background:white;border-radius:18px;padding:20px;box-shadow:0 5px 20px #0000000a}.label{color:#667085;font-size:14px}.value{font-size:27px;font-weight:700;margin-top:8px}
+.income{border-left:5px solid #22a06b}.expense{border-left:5px solid #e55353}.balance{border-left:5px solid #4778e6}
+.layout{display:grid;grid-template-columns:360px 1fr;gap:18px;margin-top:18px}
+input,select,button{width:100%;padding:12px;border:1px solid #d9dee5;border-radius:10px;font-size:15px}label{display:block;margin:12px 0 6px;font-weight:600}
+button{border:0;background:#17202a;color:#fff;font-weight:700;cursor:pointer;margin-top:15px}button:hover{opacity:.9}
+.secondary{background:#eef1f5;color:#17202a}.danger{background:#ffe8e8;color:#c62828;padding:7px 10px;width:auto;margin:0}
+table{width:100%;border-collapse:collapse;margin-top:12px}th,td{text-align:left;padding:12px 8px;border-bottom:1px solid #eee;font-size:14px}th{color:#667085}
+.empty{text-align:center;color:#8a94a6;padding:35px}.toolbar{display:flex;gap:10px;margin-bottom:8px}.toolbar>*{flex:1}
+@media(max-width:800px){.grid,.layout{grid-template-columns:1fr}.head{align-items:flex-start;flex-direction:column}}
+
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-card{width:min(430px,100%);background:#fff;border-radius:22px;padding:32px;box-shadow:0 10px 35px #00000012;text-align:center}
+.login-card h1{margin:0 0 8px;font-size:30px}.login-card p{color:#667085;line-height:1.6}
+.userbar{display:flex;align-items:center;gap:10px}.userbar img{width:38px;height:38px;border-radius:50%}.user-info{font-size:13px}.logout{width:auto;margin:0;padding:8px 12px}
+#app{display:none}
+
+</style>
+</head>
+<body>
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <h1>💰 আমার টাকা</h1>
+    <p>আপনার ব্যক্তিগত আয় ও খরচ দেখতে Google দিয়ে লগইন করুন।</p>
+    <button onclick="loginWithGoogle()">🔐 Google দিয়ে লগইন করুন</button>
+    <p style="font-size:12px;margin-top:18px">আপনার হিসাব Cloud-এ নিরাপদভাবে সংরক্ষিত থাকবে। একই Google account দিয়ে অন্য মোবাইল/কম্পিউটারে লগইন করলে ডাটা পাওয়া যাবে।</p>
+    <p id="loginStatus" style="font-size:12px;color:#c62828"></p>
+  </div>
+</div>
+
+<div id="app">
+<div class="container">
+  <div class="head">
+    <div><h1>💰 আমার টাকা</h1><div class="sub">আপনার আয় ও খরচ সহজে হিসাব রাখুন</div></div>
+    <div class="userbar">
+      <img id="userPhoto" src="" alt="">
+      <div class="user-info"><b id="userName"></b><br><span id="userEmail"></span></div>
+      <button class="secondary logout" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card income"><div class="label">মোট আয়</div><div class="value" id="income">৳0</div></div>
+    <div class="card expense"><div class="label">মোট খরচ</div><div class="value" id="expense">৳0</div></div>
+    <div class="card balance"><div class="label">বাকি টাকা</div><div class="value" id="balance">৳0</div></div>
+  </div>
+
+  <div class="layout">
+    <div class="card">
+      <h2>নতুন হিসাব</h2>
+      <label>ধরন</label>
+      <select id="type"><option value="income">আয়</option><option value="expense">খরচ</option></select>
+      <label>টাকার পরিমাণ</label>
+      <input id="amount" type="number" min="0" placeholder="যেমন: 5000">
+      <label>ক্যাটাগরি</label>
+      <select id="category">
+        <option>বেতন</option><option>ব্যবসা</option><option>খাবার</option><option>বাসা/ভাড়া</option>
+        <option>যাতায়াত</option><option>Shopping</option><option>বিল</option><option>অন্যান্য</option>
+      </select>
+      <label>তারিখ</label>
+      <input id="date" type="date">
+      <label>নোট</label>
+      <input id="note" placeholder="যেমন: মাসের বেতন">
+      <button onclick="addItem()">+ হিসাব যোগ করুন</button>
+      <button class="secondary" onclick="clearAll()">সব হিসাব মুছে দিন</button>
+    </div>
+
+    <div class="card">
+      <div class="toolbar">
+        <input id="search" placeholder="🔎 খুঁজুন..." oninput="render()">
+        <select id="filter" onchange="render()"><option value="all">সব</option><option value="income">শুধু আয়</option><option value="expense">শুধু খরচ</option></select>
+      </div>
+      <div id="list"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+/* =========================
+   1) PUT YOUR FIREBASE CONFIG HERE
+   =========================
+   Firebase Console:
+   Project settings → Your apps → Web app → SDK setup and configuration
+*/
+const firebaseConfig = {
+  apiKey: "AIzaSyDeFMSEI1h3oiTu0AuRABNNL94xTlHhYIE",
+  authDomain: "amar-takar-hisab-ea4a9.firebaseapp.com",
+  projectId: "amar-takar-hisab-ea4a9",
+  storageBucket: "amar-takar-hisab-ea4a9.firebasestorage.app",
+  messagingSenderId: "906301662366",
+  appId: "1:906301662366:web:70a8177f20fcbb8c59878f",
+  measurementId: "G-NYER61F3PV"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let currentUser = null;
+let items = [];
+let unsubscribeItems = null;
+
+/* Google Login */
+async function loginWithGoogle(){
+  const status = document.getElementById("loginStatus");
+  status.textContent = "Login হচ্ছে...";
+  try{
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({prompt:"select_account"});
+    await auth.signInWithPopup(provider);
+  }catch(e){
+    console.error(e);
+    status.textContent = "Login ব্যর্থ: " + (e.message || "আবার চেষ্টা করুন");
+  }
+}
+
+/* Auth state: automatically loads the user's cloud data */
+auth.onAuthStateChanged(async (user)=>{
+  if(!user){
+    currentUser = null;
+    items = [];
+    if(unsubscribeItems){ unsubscribeItems(); unsubscribeItems=null; }
+    document.getElementById("app").style.display="none";
+    document.getElementById("loginScreen").style.display="flex";
+    return;
+  }
+
+  currentUser = user;
+  document.getElementById("loginScreen").style.display="none";
+  document.getElementById("app").style.display="block";
+  document.getElementById("userName").textContent = user.displayName || "Google User";
+  document.getElementById("userEmail").textContent = user.email || "";
+  document.getElementById("userPhoto").src = user.photoURL || "";
+  document.getElementById("date").value = new Date().toISOString().slice(0,10);
+
+  await loadCloudData();
+});
+
+/* Real-time cloud sync.
+   Each user can only read/write their own document because the Firestore
+   rules below use request.auth.uid == userId.
+*/
+async function loadCloudData(){
+  if(!currentUser) return;
+
+  if(unsubscribeItems){ unsubscribeItems(); }
+
+  const ref = db.collection("users").doc(currentUser.uid);
+
+  unsubscribeItems = ref.onSnapshot((snap)=>{
+    items = snap.exists && Array.isArray(snap.data().items) ? snap.data().items : [];
+    render();
+  }, (error)=>{
+    console.error(error);
+    alert("Cloud data load হয়নি। Firestore Rules/Config চেক করুন।");
+  });
+}
+
+async function save(){
+  if(!currentUser) return;
+  try{
+    await db.collection("users").doc(currentUser.uid).set({
+      items: items,
+      email: currentUser.email || "",
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, {merge:true});
+  }catch(e){
+    console.error(e);
+    alert("ডাটা Cloud-এ save হয়নি। Firestore চালু আছে কি না দেখুন।");
+  }
+}
+
+async function logout(){
+  if(unsubscribeItems){ unsubscribeItems(); unsubscribeItems=null; }
+  await auth.signOut();
+}
+
+function money(n){return "৳"+Number(n).toLocaleString("en-US",{maximumFractionDigits:2})}
+
+async function addItem(){
+  const amount=Number(document.getElementById("amount").value);
+  if(!amount || amount<0){alert("সঠিক টাকার পরিমাণ দিন");return}
+
+  items.unshift({
+    id:Date.now(),
+    type:document.getElementById("type").value,
+    amount,
+    category:document.getElementById("category").value,
+    date:document.getElementById("date").value,
+    note:document.getElementById("note").value.trim()
+  });
+
+  await save();
+  document.getElementById("amount").value="";
+  document.getElementById("note").value="";
+  render();
+}
+
+async function del(id){
+  items=items.filter(x=>x.id!==id);
+  await save();
+  render();
+}
+
+async function clearAll(){
+  if(confirm("সব হিসাব মুছে ফেলবেন?")){
+    items=[];
+    await save();
+    render();
+  }
+}
+
+function render(){
+  let inc=items.filter(x=>x.type==="income").reduce((a,x)=>a+x.amount,0);
+  let exp=items.filter(x=>x.type==="expense").reduce((a,x)=>a+x.amount,0);
+  document.getElementById("income").textContent=money(inc);
+  document.getElementById("expense").textContent=money(exp);
+  document.getElementById("balance").textContent=money(inc-exp);
+
+  const q=document.getElementById("search").value.toLowerCase();
+  const f=document.getElementById("filter").value;
+  let data=items.filter(x=>
+    (f==="all"||x.type===f) &&
+    ((x.category+" "+x.note).toLowerCase().includes(q))
+  );
+
+  if(!data.length){
+    document.getElementById("list").innerHTML='<div class="empty">এখনও কোনো হিসাব নেই।<br>বাম পাশ থেকে প্রথম হিসাবটি যোগ করুন।</div>';
+    return;
+  }
+
+  document.getElementById("list").innerHTML=`<table><thead><tr><th>তারিখ</th><th>ধরন</th><th>ক্যাটাগরি</th><th>নোট</th><th>টাকা</th><th></th></tr></thead><tbody>${
+    data.map(x=>`<tr><td>${x.date||"-"}</td><td>${x.type==="income"?"🟢 আয়":"🔴 খরচ"}</td><td>${x.category}</td><td>${x.note||"-"}</td><td><b>${money(x.amount)}</b></td><td><button class="danger" onclick="del(${x.id})">মুছুন</button></td></tr>`).join("")
+  }</tbody></table>`;
+}
+</script></script>
+</body>
+</html>
