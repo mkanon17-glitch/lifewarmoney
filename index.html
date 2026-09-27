@@ -7,7 +7,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
-<title>আমার টাকা — Money Tracker</title>
+<meta name="theme-color" content="#17202a">
+<title>আমার টাকা — Personal & Business Finance Suite</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,"Noto Sans Bengali",sans-serif;background:#f4f6f8;color:#17202a}
 .container{max-width:1100px;margin:auto;padding:28px 18px}.head{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:25px}
@@ -28,8 +29,269 @@ table{width:100%;border-collapse:collapse;margin-top:12px}th,td{text-align:left;
 .userbar{display:flex;align-items:center;gap:10px}.userbar img{width:38px;height:38px;border-radius:50%}.user-info{font-size:13px}.logout{width:auto;margin:0;padding:8px 12px}
 #app{display:none}
 
+
+.goal-section{margin-top:18px}
+.goal-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.goal-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.goal-tab{width:auto;margin:0;padding:9px 13px;background:#eef1f5;color:#17202a}
+.goal-tab.active{background:#17202a;color:#fff}
+.goal-form{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.goal-form .full{grid-column:1/-1}
+.goal-form button{grid-column:1/-1}
+.goals-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
+.goal-card{border:1px solid #e6e9ee;border-radius:14px;padding:15px;background:#fff}
+.goal-title{font-weight:700;font-size:17px}
+.goal-meta{font-size:13px;color:#667085;margin-top:5px}
+.goal-bar{height:9px;background:#edf0f3;border-radius:99px;overflow:hidden;margin:12px 0 7px}
+.goal-fill{height:100%;background:#4778e6;border-radius:99px}
+.goal-actions{display:flex;gap:7px;margin-top:10px}
+.goal-actions button{width:auto;margin:0;padding:8px 10px}
+.goal-amount{display:flex;justify-content:space-between;font-size:13px}
+.goal-empty{padding:22px;text-align:center;color:#8a94a6;border:1px dashed #d9dee5;border-radius:12px}
+@media(max-width:800px){.goal-form,.goals-grid{grid-template-columns:1fr}}
+
+
+.menu-btn{width:auto;margin:0;padding:10px 14px;font-size:20px;background:#17202a}.menu-overlay{display:none;position:fixed;inset:0;background:#0006;z-index:90}.menu-overlay.open{display:block}.side-menu{position:fixed;top:0;right:-340px;width:min(330px,88vw);height:100vh;background:#fff;z-index:100;box-shadow:-8px 0 30px #0002;transition:right .25s;overflow-y:auto}.side-menu.open{right:0}.menu-top{padding:20px;border-bottom:1px solid #eee;display:flex;justify-content:space-between}.menu-top h2{margin:0}.menu-close{width:auto;margin:0;background:#eef1f5;color:#17202a}.menu-user{padding:15px 18px;background:#f7f8fa;display:flex;gap:10px;align-items:center}.menu-user img{width:42px;height:42px;border-radius:50%}.menu-section{padding:12px 14px 5px;color:#667085;font-size:12px;font-weight:bold}.menu-item{display:block;text-align:left;width:calc(100% - 20px);margin:3px 10px;padding:11px 14px;background:transparent;color:#17202a}.menu-item:hover{background:#f1f3f5}
+
+.money-plan{margin-top:18px}.plan-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:15px}.plan-box{border:1px solid #e6e9ee;border-radius:14px;padding:15px;background:#fff}.plan-box h3{margin:0 0 7px;font-size:15px}.plan-pct{font-size:25px;font-weight:800}.plan-amt{color:#667085;margin-top:4px}.plan-total{margin-top:14px;padding:13px;border-radius:12px;background:#f4f6f8;font-weight:700}.plan-actions{display:flex;gap:8px;flex-wrap:wrap}.plan-actions button{width:auto}.plan-custom{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}.plan-custom label{margin:0}@media(max-width:800px){.plan-grid,.plan-custom{grid-template-columns:repeat(2,1fr)}}@media(max-width:480px){.plan-grid,.plan-custom{grid-template-columns:1fr}}
 </style>
-</head>
+
+<style id="business-plan-beauty">
+:root{
+  --bp-primary:#2563eb;
+  --bp-primary-2:#7c3aed;
+  --bp-bg:#f5f7fb;
+  --bp-card:#ffffff;
+  --bp-text:#172033;
+  --bp-muted:#667085;
+  --bp-border:#e7eaf0;
+  --bp-shadow:0 12px 35px rgba(31,41,55,.08);
+}
+body{background:linear-gradient(180deg,#f8faff 0%,#f5f7fb 45%,#eef3f9 100%);color:var(--bp-text)}
+.container{max-width:1180px}
+.head{
+  position:sticky;top:0;z-index:50;
+  margin:0 -12px 20px;padding:14px 16px;
+  background:rgba(255,255,255,.88);
+  backdrop-filter:blur(16px);
+  border:1px solid rgba(231,234,240,.85);
+  border-radius:0 0 18px 18px;
+  box-shadow:0 8px 24px rgba(31,41,55,.06)
+}
+.head h1{font-size:27px;letter-spacing:-.5px}
+.userbar{gap:10px}
+.menu-btn{
+  border-radius:12px!important;
+  background:linear-gradient(135deg,var(--bp-primary),var(--bp-primary-2))!important;
+  box-shadow:0 7px 18px rgba(37,99,235,.25)
+}
+.card{
+  border:1px solid rgba(231,234,240,.9)!important;
+  border-radius:18px!important;
+  box-shadow:var(--bp-shadow)!important;
+  transition:transform .2s ease,box-shadow .2s ease
+}
+.card:hover{transform:translateY(-2px);box-shadow:0 18px 45px rgba(31,41,55,.11)!important}
+.grid .card{position:relative;overflow:hidden}
+.grid .card:after{
+  content:"";position:absolute;right:-28px;top:-28px;width:90px;height:90px;
+  border-radius:50%;background:rgba(255,255,255,.22)
+}
+.grid .value{font-size:27px;font-weight:800}
+.layout{gap:18px}
+input,select,textarea{
+  border:1px solid #dfe4ec!important;border-radius:12px!important;
+  background:#fbfcfe!important;transition:.2s
+}
+input:focus,select:focus,textarea:focus{
+  outline:none!important;border-color:#8bb4ff!important;
+  box-shadow:0 0 0 4px rgba(37,99,235,.09)
+}
+button{
+  border-radius:12px!important;
+  transition:transform .15s ease,box-shadow .15s ease,opacity .15s ease
+}
+button:hover{transform:translateY(-1px)}
+.goal-section,.salary-plan{
+  border-radius:20px!important;
+  border:1px solid var(--bp-border)!important;
+  box-shadow:var(--bp-shadow)!important
+}
+.salary-plan{
+  background:
+    radial-gradient(circle at 100% 0%,rgba(124,58,237,.10),transparent 28%),
+    radial-gradient(circle at 0% 100%,rgba(37,99,235,.09),transparent 30%),
+    #fff!important;
+}
+.salary-plan h2,.goal-section h2{letter-spacing:-.3px}
+.plan-presets button{
+  border:1px solid #dfe4ec!important;background:#fff!important;color:#344054!important
+}
+.plan-presets button:hover{border-color:#8bb4ff!important;background:#f5f9ff!important}
+.plan-card{
+  border:1px solid #e7eaf0!important;border-radius:16px!important;
+  background:linear-gradient(180deg,#fff,#fafbfe)!important
+}
+.menu-overlay{backdrop-filter:blur(2px)}
+.side-menu{
+  background:linear-gradient(180deg,#fff 0%,#f8faff 100%)!important;
+  border-left:1px solid #e6eaf1;
+}
+.menu-top{background:linear-gradient(135deg,#eef5ff,#f7f1ff)}
+.menu-item{border-radius:12px!important}
+.menu-item:hover{background:#edf4ff!important;color:#175cd3!important}
+.menu-section{letter-spacing:.5px}
+.login-screen{background:
+  radial-gradient(circle at 15% 15%,rgba(37,99,235,.18),transparent 28%),
+  radial-gradient(circle at 85% 85%,rgba(124,58,237,.18),transparent 30%),
+  linear-gradient(135deg,#f6f9ff,#f8f5ff)!important}
+.login-card{
+  border:1px solid rgba(255,255,255,.8)!important;
+  box-shadow:0 25px 70px rgba(31,41,55,.14)!important;
+  border-radius:24px!important
+}
+@media(max-width:700px){
+  .head{margin-left:-8px;margin-right:-8px;border-radius:0 0 15px 15px}
+  .head h1{font-size:23px}
+  .grid{gap:10px}
+  .grid .value{font-size:23px}
+}
+</style>
+
+
+<style id="pf-pro-style">
+.pf-dashboard{margin:20px 0}
+.pf-section-title{display:flex;justify-content:space-between;align-items:end;gap:12px;margin:0 0 12px}
+.pf-section-title h2{margin:0;font-size:22px}
+.pf-section-title span{font-size:12px;color:#667085}
+.pf-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.pf-card{background:#fff;border:1px solid #e6eaf0;border-radius:18px;padding:18px;box-shadow:0 12px 35px rgba(31,41,55,.07);position:relative;overflow:hidden}
+.pf-card h3{margin:0 0 4px;font-size:15px}
+.pf-muted{color:#667085;font-size:12px}
+.pf-number{font-size:25px;font-weight:800;margin:8px 0}
+.pf-icon{width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:21px;background:#eef5ff;margin-bottom:10px}
+.pf-progress{height:9px;background:#edf0f5;border-radius:99px;overflow:hidden;margin:12px 0 7px}
+.pf-progress>span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#2563eb,#7c3aed)}
+.pf-row{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.pf-good{color:#0f9d6e;font-weight:700}.pf-warn{color:#e68a00;font-weight:700}.pf-bad{color:#e5484d;font-weight:700}
+.pf-main-grid{display:grid;grid-template-columns:1.55fr 1fr 1fr;gap:14px;margin-top:14px}
+.pf-chart{min-height:300px}.pf-chart svg{width:100%;height:235px;display:block}
+.pf-chart-legend{display:flex;gap:18px;font-size:12px;margin-top:5px}
+.pf-dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}
+.pf-input-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.pf-input-row input{margin:0!important}
+.pf-small-btn{width:auto!important;margin:8px 0 0!important;padding:8px 12px!important;font-size:12px!important}
+.pf-list{margin-top:12px}
+.pf-list-item{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid #eef0f4;font-size:13px}
+.pf-list-item:last-child{border-bottom:0}
+.pf-bill{padding:10px;border:1px solid #edf0f5;border-radius:12px;margin-top:8px;background:#fbfcfe}
+.pf-bill-top{display:flex;justify-content:space-between;font-weight:700}
+.pf-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.pf-action{flex:1;min-width:130px;border:1px solid #e2e7ef!important;background:#fff!important;color:#172033!important}
+.pf-action:hover{background:#f4f8ff!important}
+.pf-form{margin-top:10px;padding-top:10px;border-top:1px solid #eef0f4}
+.pf-health{background:linear-gradient(135deg,#f0f7ff,#f7f2ff)}
+.pf-health-score{font-size:34px;font-weight:900}
+.pf-networth{background:linear-gradient(135deg,#f5fbff,#f8f5ff)}
+.pf-networth-ring{width:112px;height:112px;margin:8px auto 4px;position:relative}
+.pf-networth-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.pf-networth-ring circle{fill:none;stroke-width:12}
+.pf-ring-value{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px}
+@media(max-width:980px){.pf-grid{grid-template-columns:repeat(2,1fr)}.pf-main-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.pf-grid,.pf-main-grid{grid-template-columns:1fr}.pf-card{padding:15px}.pf-input-row{grid-template-columns:1fr}}
+</style>
+
+
+<style id="business-suite-style">
+:root{
+  --side:#071b3a;--side2:#0b2b58;--accent:#2563eb;--purple:#6d3df5;
+  --green:#12a36a;--red:#e84d5b;--orange:#f59e0b;--ink:#172033;
+}
+body{padding-left:285px;background:#f4f7fb}
+#app{max-width:1400px;margin:0 auto}
+.desktop-sidebar{
+  position:fixed;left:0;top:0;bottom:0;width:265px;padding:18px 13px;
+  background:linear-gradient(180deg,var(--side),#09264f 65%,#061631);
+  color:#fff;z-index:120;overflow-y:auto;box-shadow:8px 0 30px rgba(0,0,0,.12)
+}
+.brand-box{display:flex;align-items:center;gap:11px;padding:8px 9px 18px;border-bottom:1px solid rgba(255,255,255,.1)}
+.brand-icon{width:43px;height:43px;border-radius:13px;background:linear-gradient(135deg,#18b77d,#20c997);display:flex;align-items:center;justify-content:center;font-size:24px}
+.brand-title{font-size:21px;font-weight:900}.brand-sub{font-size:10px;color:#a9bddb;margin-top:2px}
+.side-user{display:flex;gap:10px;align-items:center;padding:14px 8px;border-bottom:1px solid rgba(255,255,255,.08)}
+.side-user img{width:38px;height:38px;border-radius:50%;border:2px solid rgba(255,255,255,.35)}
+.side-user b{display:block;font-size:12px}.side-user span{display:block;font-size:10px;color:#a9bddb;margin-top:2px;max-width:165px;overflow:hidden;text-overflow:ellipsis}
+.side-label{font-size:10px;letter-spacing:1.2px;color:#7893b8;font-weight:800;padding:17px 9px 6px}
+.side-nav,.side-logout{
+  width:100%!important;margin:3px 0!important;border:0!important;background:transparent!important;color:#d9e6f8!important;
+  text-align:left!important;padding:12px 11px!important;border-radius:11px!important;display:flex!important;align-items:center;gap:11px;
+  font-size:13px!important
+}
+.side-nav span{flex:1}.side-nav em{font-style:normal;font-size:8px;background:#19b77a;padding:3px 6px;border-radius:20px;color:white}
+.side-nav:hover,.side-nav.active{background:linear-gradient(90deg,#1767df,#2555c9)!important;color:#fff!important;box-shadow:0 7px 18px rgba(37,99,235,.22)}
+.side-footer{margin:18px 5px 12px;padding:14px;border-radius:14px;background:linear-gradient(135deg,#087e60,#0e9c73);font-size:10px;color:#d9fff1}
+.side-goal-title{font-size:12px;font-weight:800;color:#fff;margin-bottom:5px}
+.side-logout{border-top:1px solid rgba(255,255,255,.1)!important;border-radius:0!important;padding-top:16px!important}
+.head{position:sticky;top:0;z-index:50}
+.pf-dashboard{margin-top:24px}
+.business-workspace{margin:24px 0;padding:22px;background:linear-gradient(180deg,#f8fbff,#f3f6fb);border:1px solid #e3e9f2;border-radius:22px}
+.workspace-head{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:18px}
+.workspace-head h2{margin:4px 0;font-size:25px}.workspace-head p{margin:0;color:#667085;font-size:13px}
+.eyebrow{font-size:10px;font-weight:900;letter-spacing:1.5px;color:#2563eb}
+.business-primary{width:auto!important;margin:0!important;background:linear-gradient(135deg,#2563eb,#6d3df5)!important;box-shadow:0 9px 22px rgba(37,99,235,.2)}
+.business-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+.business-card{background:#fff;border:1px solid #e5eaf2;border-radius:16px;padding:16px;box-shadow:0 8px 25px rgba(31,41,55,.05)}
+.business-card span{display:block;color:#667085;font-size:12px}.business-card b{display:block;font-size:24px;margin:8px 0}.business-card small{color:#98a2b3;font-size:10px}
+.business-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:13px;margin-top:13px}.business-grid.three{grid-template-columns:repeat(3,1fr)}
+.business-panel{background:#fff;border:1px solid #e5eaf2;border-radius:16px;padding:17px;box-shadow:0 8px 25px rgba(31,41,55,.05)}
+.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}.panel-head h3{margin:0;font-size:15px}.panel-head span{font-size:10px;color:#98a2b3}
+.cashflow-bars>div{display:grid;grid-template-columns:75px 1fr 42px;gap:8px;align-items:center;margin:13px 0;font-size:12px}.cashflow-bars .bar{height:10px;background:#edf1f6;border-radius:20px;overflow:hidden}.cashflow-bars i{display:block;height:100%;width:0;background:linear-gradient(90deg,#16a36d,#34c38f);border-radius:20px}
+.business-note{margin-top:15px;padding:10px;border-radius:11px;background:#f2f7ff;color:#52637b;font-size:11px}
+.mini-stat{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid #eef1f5;font-size:12px}.mini-stat b{font-size:14px}
+.business-outline{margin-top:13px!important;width:auto!important;background:#fff!important;color:#2563eb!important;border:1px solid #cfe0ff!important}
+.panel-help{font-size:12px;color:#667085;line-height:1.6}.quick-business{display:flex;gap:8px}.quick-business button{width:auto!important;margin:0!important;background:#f4f7ff!important;color:#2563eb!important}
+.stock-box{display:flex;align-items:center;gap:10px;padding:13px;background:#f7f9fc;border-radius:12px}.stock-box b{font-size:23px}.stock-box span{font-size:11px;color:#667085}
+.profit-big{font-size:30px;font-weight:900;margin:20px 0 4px}.profit-status{font-size:11px;color:#667085}
+@media(max-width:1050px){body{padding-left:0}.desktop-sidebar{width:235px}.business-cards{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:800px){body{padding-left:0}.desktop-sidebar{position:relative;width:auto;height:auto;max-height:none}.side-nav{display:inline-flex!important;width:48%!important;vertical-align:top}.business-grid,.business-grid.three{grid-template-columns:1fr}.workspace-head{align-items:flex-start;flex-direction:column}}
+@media(max-width:520px){.business-cards{grid-template-columns:1fr}.side-nav{width:100%!important}}
+</style>
+
+
+<style id="notes-center-style">
+body{padding-left:285px}
+#app{max-width:1400px}
+.notes-workspace{margin:24px 0;padding:22px;background:linear-gradient(180deg,#fff,#f7f9fd);border:1px solid #e3e9f2;border-radius:22px;box-shadow:0 12px 35px rgba(31,41,55,.06)}
+.notes-tabs{display:flex;gap:8px;margin:16px 0 14px;padding:5px;background:#eef2f7;border-radius:13px;width:max-content;max-width:100%}
+.notes-tab{width:auto!important;margin:0!important;background:transparent!important;color:#5d6b82!important;border:0!important;padding:10px 15px!important;border-radius:9px!important}
+.notes-tab.active{background:#fff!important;color:#2563eb!important;box-shadow:0 3px 10px rgba(31,41,55,.08)}
+.notes-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
+.notes-editor,.notes-list-panel{background:#fff;border:1px solid #e5eaf2;border-radius:16px;padding:17px}
+.note-title-row{margin-bottom:12px}.note-title-row h3{margin:0 0 4px}.note-title-row span{font-size:11px;color:#667085}
+.notes-editor input,.notes-editor textarea{width:100%;box-sizing:border-box;margin:7px 0!important}
+.notes-editor textarea{resize:vertical;min-height:180px}
+.notes-actions{display:flex;gap:8px}.notes-actions button{width:auto!important;margin:0!important}
+.notes-primary{background:linear-gradient(135deg,#2563eb,#6d3df5)!important}
+.notes-secondary{background:#f1f4f8!important;color:#344054!important}
+.note-item{padding:12px;border:1px solid #e8ecf2;border-radius:12px;margin-top:9px;background:#fbfcfe}
+.note-item h4{margin:0 0 5px;font-size:13px}.note-item p{margin:0;color:#667085;font-size:11px;line-height:1.55;white-space:pre-wrap}
+.note-item-top{display:flex;justify-content:space-between;gap:8px}.note-delete{width:auto!important;margin:0!important;padding:5px 8px!important;background:#fff1f2!important;color:#d92d20!important;font-size:10px!important}
+.notes-empty{text-align:center;padding:30px 10px;color:#98a2b3;font-size:12px}
+@media(max-width:1050px){body{padding-left:0}.notes-grid{grid-template-columns:1fr}}
+@media(max-width:800px){.desktop-sidebar{position:relative;width:auto;height:auto;max-height:none}.side-nav{display:inline-flex!important;width:48%!important}.notes-tabs{width:100%;box-sizing:border-box}.notes-tab{flex:1}}
+@media(max-width:520px){.side-nav{width:100%!important}.notes-workspace{padding:14px}}
+</style>
+
+<style id="account-separation-style">
+.account-overview{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:16px 0}
+.account-card{padding:18px;border-radius:17px;border:1px solid #e4eaf2;background:#fff;box-shadow:0 8px 24px rgba(31,41,55,.05)}
+.account-card span{display:block;font-size:12px;color:#667085;font-weight:700}.account-card b{display:block;font-size:27px;margin:7px 0}.account-card small{font-size:10px;color:#98a2b3}
+.account-card.personal{border-left:4px solid #2563eb}.account-card.business{border-left:4px solid #12a36a}.account-card.all{border-left:4px solid #6d3df5}
+.account-mini{display:flex;gap:10px;margin-top:9px;font-size:10px}.account-mini i{font-style:normal;color:#667085}
+.account-switch{display:flex;gap:8px;background:#edf2f7;padding:5px;border-radius:13px;width:max-content;margin:0 0 16px}
+.account-switch-btn{width:auto!important;margin:0!important;border:0!important;background:transparent!important;color:#667085!important;padding:9px 14px!important;border-radius:9px!important}
+.account-switch-btn.active{background:#fff!important;color:#2563eb!important;box-shadow:0 3px 10px rgba(0,0,0,.07)}
+@media(max-width:800px){.account-overview{grid-template-columns:1fr}.account-switch{width:100%;box-sizing:border-box}.account-switch-btn{flex:1}}
+</style></head>
 <body>
 <div id="loginScreen" class="login-screen">
   <div class="login-card">
@@ -41,6 +303,51 @@ table{width:100%;border-collapse:collapse;margin-top:12px}th,td{text-align:left;
   </div>
 </div>
 
+<aside id="desktopSidebar" class="desktop-sidebar">
+  <div class="brand-box">
+    <div class="brand-icon">💰</div>
+    <div><div class="brand-title">আমার টাকা</div><div class="brand-sub">Business Finance Suite</div></div>
+  </div>
+
+  <div class="side-user">
+    <img id="sideUserPhoto" src="" alt="">
+    <div><b id="sideUserName">Google User</b><span id="sideUserEmail"></span></div>
+  </div>
+
+  <div class="side-label">MAIN</div>
+  <button class="side-nav active" onclick="sideGo('dashboard')">🏠 <span>Dashboard</span></button>
+  <button class="side-nav" onclick="sideGo('money')">💰 <span>Income & Expense</span></button>
+  <button class="side-nav" onclick="sideGo('salary')">💼 <span>Salary Money Plan</span><em>NEW</em></button>
+
+  <div class="side-label">PERSONAL FINANCE</div>
+  <button class="side-nav" onclick="sideGo('budget')">📊 <span>Monthly Budget</span></button>
+  <button class="side-nav" onclick="sideGo('goals')">🎯 <span>Money Goals</span></button>
+  <button class="side-nav" onclick="sideGo('life')">❤️ <span>Life Goals</span></button>
+  <button class="side-nav" onclick="sideGo('emergency')">🛡️ <span>Emergency Fund</span></button>
+  <button class="side-nav" onclick="sideGo('debt')">💳 <span>Debt & Loan</span></button>
+  <button class="side-nav" onclick="sideGo('bills')">🔔 <span>Bills Reminder</span></button>
+
+  <div class="side-label">BUSINESS</div>
+  <button class="side-nav" onclick="sideGo('business')">🏢 <span>Business Finance</span></button>
+  <button class="side-nav" onclick="sideGo('cashflow')">🔄 <span>Cash Flow</span></button>
+  <button class="side-nav" onclick="sideGo('customers')">👥 <span>Customers / Receivable</span></button>
+  <button class="side-nav" onclick="sideGo('suppliers')">📦 <span>Suppliers / Payable</span></button>
+  <button class="side-nav" onclick="sideGo('inventory')">🧾 <span>Sales & Inventory</span></button>
+  <button class="side-nav" onclick="sideGo('profit')">📈 <span>Profit & Loss</span></button>
+<button class="side-nav" onclick="sideGo('notes')">📝 <span>Notes Center</span></button>
+
+  <div class="side-label">REPORTS & DATA</div>
+  <button class="side-nav" onclick="sideGo('reports')">📋 <span>Reports & Analytics</span></button>
+  <button class="side-nav" onclick="exportData()">💾 <span>Backup / Export</span></button>
+
+  <div class="side-footer">
+    <div class="side-goal-title">🚀 Your Money, Your Future</div>
+    <div>পরিকল্পনা করুন • সঞ্চয় করুন • ব্যবসা বাড়ান</div>
+  </div>
+
+  <button class="side-logout" onclick="logout()">🚪 Logout</button>
+</aside>
+
 <div id="app">
 <div class="container">
   <div class="head">
@@ -48,11 +355,199 @@ table{width:100%;border-collapse:collapse;margin-top:12px}th,td{text-align:left;
     <div class="userbar">
       <img id="userPhoto" src="" alt="">
       <div class="user-info"><b id="userName"></b><br><span id="userEmail"></span></div>
-      <button class="secondary logout" onclick="logout()">Logout</button>
+      
     </div>
   </div>
 
-  <div class="grid">
+  
+<div class="bp-welcome card" style="margin-bottom:18px;padding:22px;background:linear-gradient(135deg,#eef5ff,#f8f3ff);">
+  <div style="display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap">
+    <div>
+      <div style="font-size:13px;color:#667085;font-weight:700;margin-bottom:5px">SMART MONEY MANAGEMENT</div>
+      <h2 style="margin:0 0 6px;font-size:23px">আপনার টাকার জন্য একটি পরিষ্কার পরিকল্পনা তৈরি করুন 🚀</h2>
+      <div class="sub">বেতন পাওয়ার পর আগে সঞ্চয় ও লক্ষ্য ঠিক করুন, তারপর প্রয়োজনীয় খরচ পরিচালনা করুন।</div>
+    </div>
+    <div style="font-size:42px">💰</div>
+  </div>
+</div>
+
+
+<div id="pfDashboard" class="pf-dashboard">
+  <div class="pf-section-title">
+    <div><h2>📊 Smart Financial Dashboard</h2><span>এক নজরে আপনার আর্থিক অবস্থার সম্পূর্ণ ছবি</span></div>
+  </div>
+
+  <div class="account-overview">
+    <div class="account-card all"><span>💰 Total Finance</span><b id="allAccountBalance">৳0</b><small>Personal + Business</small></div>
+    <div class="account-card personal"><span>🏠 Daily Life / Personal</span><b id="personalAccountBalance">৳0</b><small>শুধু দৈনন্দিন জীবনের হিসাব</small><div class="account-mini"><i id="personalIncome">আয় ৳0</i><i id="personalExpense">খরচ ৳0</i></div></div>
+    <div class="account-card business"><span>🏢 Business</span><b id="businessAccountBalance">৳0</b><small>শুধু ব্যবসার হিসাব</small><div class="account-mini"><i id="businessIncome">আয় ৳0</i><i id="businessExpense">খরচ ৳0</i></div></div>
+  </div>
+
+  <div class="account-switch">
+    <button class="account-switch-btn active" onclick="setAccountView('all')">💰 All Finance</button>
+    <button class="account-switch-btn" onclick="setAccountView('personal')">🏠 Daily Life</button>
+    <button class="account-switch-btn" onclick="setAccountView('business')">🏢 Business</button>
+  </div>
+
+  <div class="pf-grid">
+    <div class="pf-card">
+      <div class="pf-icon">💰</div><h3>Monthly Budget</h3><div class="pf-muted">এই মাসের বাজেট ব্যবহারের অবস্থা</div>
+      <div class="pf-number" id="pfBudgetUsed">৳0</div>
+      <div class="pf-progress"><span id="pfBudgetBar" style="width:0%"></span></div>
+      <div class="pf-row"><span id="pfBudgetPct">0% used</span><span id="pfBudgetLeft">বাকি ৳0</span></div>
+      <div class="pf-input-row"><input id="pfBudgetInput" type="number" min="0" placeholder="মাসিক বাজেট"></div>
+      <button class="pf-small-btn" onclick="savePfBudget()">💾 Budget Save</button>
+    </div>
+
+    <div class="pf-card">
+      <div class="pf-icon">🛡️</div><h3>Emergency Fund</h3><div class="pf-muted">জরুরি সময়ের নিরাপত্তা</div>
+      <div class="pf-number" id="pfEmergencyValue">৳0</div>
+      <div class="pf-progress"><span id="pfEmergencyBar" style="width:0%"></span></div>
+      <div class="pf-row"><span id="pfEmergencyPct">0% of target</span><span id="pfEmergencyMonths">0 মাস</span></div>
+      <div class="pf-input-row"><input id="pfEmergencyInput" type="number" min="0" placeholder="Emergency Fund"></div>
+      <button class="pf-small-btn" onclick="savePfEmergency()">💾 Update Fund</button>
+    </div>
+
+    <div class="pf-card">
+      <div class="pf-icon">💳</div><h3>Debt Tracker</h3><div class="pf-muted">মোট ঋণের কতটা পরিশোধ হয়েছে</div>
+      <div class="pf-number" id="pfDebtValue">৳0</div>
+      <div class="pf-progress"><span id="pfDebtBar" style="width:0%"></span></div>
+      <div class="pf-row"><span id="pfDebtPct">0% paid</span><span id="pfDebtRemain">বাকি ৳0</span></div>
+      <div class="pf-input-row"><input id="pfDebtInput" type="number" min="0" placeholder="মোট ঋণ"><input id="pfDebtPaidInput" type="number" min="0" placeholder="পরিশোধ হয়েছে"></div>
+      <button class="pf-small-btn" onclick="savePfDebt()">💾 Set Debt</button>
+    </div>
+
+    <div class="pf-card">
+      <div class="pf-icon">🐷</div><h3>Savings Rate</h3><div class="pf-muted">এই মাসে আয়ের কত % সঞ্চয় হচ্ছে</div>
+      <div class="pf-number" id="pfSavingsRate">0%</div>
+      <div class="pf-progress"><span id="pfSavingsBar" style="width:0%"></span></div>
+      <div class="pf-row"><span>সঞ্চয় = আয় − খরচ</span><span id="pfSavingsAmount">৳0</span></div>
+    </div>
+  </div>
+
+  <div class="pf-main-grid">
+    <div class="pf-card pf-chart">
+      <div class="pf-row"><div><h3>📈 Monthly Income vs Expense</h3><div class="pf-muted">শেষ ৬ মাসের তুলনা</div></div><span class="pf-good" id="pfTrendText">—</span></div>
+      <svg id="pfChart" viewBox="0 0 620 235" preserveAspectRatio="none" aria-label="Monthly income expense chart"></svg>
+      <div class="pf-chart-legend"><span><i class="pf-dot" style="background:#16a36d"></i>আয়</span><span><i class="pf-dot" style="background:#ef4b55"></i>খরচ</span></div>
+    </div>
+
+    <div class="pf-card pf-networth">
+      <h3>💎 Net Worth</h3><div class="pf-muted">সম্পদ − দায়</div>
+      <div class="pf-networth-ring">
+        <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="48" stroke="#e9edf3"></circle><circle id="pfNetRing" cx="60" cy="60" r="48" stroke="#16a36d" stroke-linecap="round" stroke-dasharray="302" stroke-dashoffset="302"></circle></svg>
+        <div class="pf-ring-value" id="pfNetWorth">৳0</div>
+      </div>
+      <div class="pf-row"><span>Assets</span><b id="pfAssets">৳0</b></div>
+      <div class="pf-row"><span>Liabilities</span><b id="pfLiabilities">৳0</b></div>
+      <div class="pf-input-row"><input id="pfAssetsInput" type="number" min="0" placeholder="সম্পদ"></div>
+      <button class="pf-small-btn" onclick="savePfAssets()">💾 Save Assets</button>
+    </div>
+
+    <div class="pf-card">
+      <h3>🧠 Financial Health</h3><div class="pf-muted">আপনার বর্তমান money habits-এর স্কোর</div>
+      <div class="pf-health" style="margin-top:14px;padding:18px;border-radius:16px;text-align:center">
+        <div class="pf-health-score" id="pfHealthScore">0/100</div>
+        <div id="pfHealthLabel" class="pf-muted">হিসাব শুরু করুন</div>
+      </div>
+      <div class="pf-list">
+        <div class="pf-list-item"><span>সঞ্চয় হার</span><b id="pfHealthSaving">0%</b></div>
+        <div class="pf-list-item"><span>Budget control</span><b id="pfHealthBudget">0%</b></div>
+        <div class="pf-list-item"><span>Emergency safety</span><b id="pfHealthEmergency">0%</b></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pf-main-grid" style="grid-template-columns:1fr 1fr 1fr">
+    <div class="pf-card">
+      <h3>🔔 Bills Reminder</h3><div class="pf-muted">মাসিক বিলগুলোর তালিকা</div>
+      <div class="pf-form">
+        <div class="pf-input-row"><input id="pfBillName" placeholder="বিলের নাম"><input id="pfBillAmount" type="number" min="0" placeholder="টাকা"></div>
+        <div class="pf-input-row"><input id="pfBillDate" type="date"><button class="pf-small-btn" onclick="addPfBill()">+ বিল যোগ</button></div>
+      </div>
+      <div id="pfBills"></div>
+    </div>
+
+    <div class="pf-card">
+      <h3>🎯 Monthly Report</h3><div class="pf-muted">এই মাসের money summary</div>
+      <div class="pf-list">
+        <div class="pf-list-item"><span>মোট আয়</span><b id="pfReportIncome">৳0</b></div>
+        <div class="pf-list-item"><span>মোট খরচ</span><b id="pfReportExpense">৳0</b></div>
+        <div class="pf-list-item"><span>সঞ্চয়</span><b id="pfReportSaving">৳0</b></div>
+        <div class="pf-list-item"><span>সবচেয়ে বেশি খরচ</span><b id="pfReportCategory">—</b></div>
+      </div>
+      <button class="pf-small-btn" onclick="pfMonthlyReport()">📄 Full Report</button>
+    </div>
+
+    <div class="pf-card">
+      <h3>⚡ Quick Actions</h3><div class="pf-muted">দ্রুত কাজ করুন</div>
+      <div class="pf-actions">
+        <button class="pf-action" onclick="document.getElementById('type').value='income';document.getElementById('amount').focus()">➕ আয় যোগ</button>
+        <button class="pf-action" onclick="document.getElementById('type').value='expense';document.getElementById('amount').focus()">➖ খরচ যোগ</button>
+        <button class="pf-action" onclick="document.querySelector('.money-plan').scrollIntoView({behavior:'smooth'})">💼 Salary Plan</button>
+        <button class="pf-action" onclick="document.querySelector('.goal-section').scrollIntoView({behavior:'smooth'})">🎯 Goals</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<section id="businessWorkspace" class="business-workspace">
+  <div class="workspace-head">
+    <div>
+      <div class="eyebrow">BUSINESS MANAGEMENT</div>
+      <h2>🏢 Business Finance Center</h2>
+      <p>আপনার ব্যবসার আয়, খরচ, বিক্রি, পাওনা, দেনা ও লাভ এক জায়গা থেকে পরিচালনা করুন।</p>
+    </div>
+    <button class="business-primary" onclick="openBusinessQuick()">＋ নতুন Business Entry</button>
+  </div>
+  <div class="business-cards">
+    <div class="business-card"><span>আজকের বিক্রি</span><b id="bizTodaySales">৳0</b><small>আজকের income entries</small></div>
+    <div class="business-card"><span>এই মাসের ব্যবসার আয়</span><b id="bizMonthIncome">৳0</b><small>মোট business cash-in</small></div>
+    <div class="business-card"><span>এই মাসের ব্যবসার খরচ</span><b id="bizMonthExpense">৳0</b><small>মোট business cash-out</small></div>
+    <div class="business-card"><span>Business Profit</span><b id="bizProfit">৳0</b><small>আয় − খরচ</small></div>
+  </div>
+  <div class="business-grid">
+    <div class="business-panel">
+      <div class="panel-head"><h3>📈 Cash Flow Overview</h3><span>এই মাস</span></div>
+      <div class="cashflow-bars">
+        <div><label>Income</label><div class="bar"><i id="bizIncomeBar"></i></div><b id="bizIncomePct">0%</b></div>
+        <div><label>Expense</label><div class="bar"><i id="bizExpenseBar"></i></div><b id="bizExpensePct">0%</b></div>
+        <div><label>Profit</label><div class="bar"><i id="bizProfitBar"></i></div><b id="bizProfitPct">0%</b></div>
+      </div>
+      <div class="business-note">💡 ব্যবসার টাকা ও ব্যক্তিগত টাকা আলাদা রাখলে হিসাব ও লাভ বোঝা অনেক সহজ হয়।</div>
+    </div>
+    <div class="business-panel">
+      <div class="panel-head"><h3>👥 Receivable / Payable</h3><span>ম্যানেজ করুন</span></div>
+      <div class="mini-stat"><span>Customers থেকে পাওনা</span><b id="bizReceivable">৳0</b></div>
+      <div class="mini-stat"><span>Suppliers-কে দিতে হবে</span><b id="bizPayable">৳0</b></div>
+      <div class="mini-stat"><span>Net Business Position</span><b id="bizNetPosition">৳0</b></div>
+      <button class="business-outline" onclick="alert('Customers / Suppliers ledger module পরের ধাপে আরও বিস্তারিত করা যাবে।')">＋ Ledger তৈরি করুন</button>
+    </div>
+  </div>
+  <div class="business-grid three">
+    <div class="business-panel">
+      <div class="panel-head"><h3>🛒 Sales Manager</h3></div>
+      <p class="panel-help">বিক্রি ও পণ্যের তথ্য আলাদা করে রাখার workspace।</p>
+      <div class="quick-business"><button onclick="businessAction('sale')">＋ Sale Entry</button><button onclick="businessAction('return')">↩ Return</button></div>
+    </div>
+    <div class="business-panel">
+      <div class="panel-head"><h3>📦 Inventory</h3></div>
+      <p class="panel-help">স্টক, ক্রয় ও বিক্রির হিসাবের জন্য workspace।</p>
+      <div class="stock-box"><b id="bizStockHint">0</b><span>Tracked Items</span></div>
+    </div>
+    <div class="business-panel">
+      <div class="panel-head"><h3>📊 Profit & Loss</h3></div>
+      <p class="panel-help">মাসিক ব্যবসার লাভ-ক্ষতি দ্রুত বুঝুন।</p>
+      <div class="profit-big" id="bizProfitBig">৳0</div>
+      <span id="bizProfitStatus" class="profit-status">ডাটা যোগ করুন</span>
+    </div>
+  </div>
+</section>
+
+<section id="notesWorkspace" class="notes-workspace"><div class="workspace-head"><div><div class="eyebrow">NOTES & PLANNING</div><h2>📝 Notes Center</h2><p>ব্যবসার গুরুত্বপূর্ণ নোট এবং দৈনন্দিন জীবনের নোট আলাদা করে রাখুন।</p></div></div><div class="notes-tabs"><button id="businessNotesTab" class="notes-tab active" onclick="switchNotes('business')">🏢 Business Notes</button><button id="lifeNotesTab" class="notes-tab" onclick="switchNotes('life')">🏠 Daily Life Notes</button></div><div class="notes-grid"><div class="notes-editor"><div class="note-title-row"><h3 id="notesTitle">🏢 Business Notes</h3><span id="notesSubtitle">Business ideas, customer follow-up, supplier information, plans & tasks</span></div><input id="noteTitleInput" placeholder="নোটের শিরোনাম"><textarea id="noteBodyInput" rows="8" placeholder="এখানে আপনার নোট লিখুন..."></textarea><div class="notes-actions"><button class="notes-primary" onclick="saveCurrentNote()">💾 Note Save</button><button class="notes-secondary" onclick="clearNoteEditor()">✕ Clear</button></div></div><div class="notes-list-panel"><div class="panel-head"><h3 id="notesListTitle">Business Notes</h3><span id="notesCount">0 notes</span></div><div id="notesList"></div></div></div></section>
+
+<div class="grid">
     <div class="card income"><div class="label">মোট আয়</div><div class="value" id="income">৳0</div></div>
     <div class="card expense"><div class="label">মোট খরচ</div><div class="value" id="expense">৳0</div></div>
     <div class="card balance"><div class="label">বাকি টাকা</div><div class="value" id="balance">৳0</div></div>
@@ -61,15 +556,19 @@ table{width:100%;border-collapse:collapse;margin-top:12px}th,td{text-align:left;
   <div class="layout">
     <div class="card">
       <h2>নতুন হিসাব</h2>
+      <label>হিসাব কোন অংশের?</label>
+      <select id="accountType">
+        <option value="personal">🏠 Daily Life / Personal</option>
+        <option value="business">🏢 Business</option>
+      </select>
       <label>ধরন</label>
       <select id="type"><option value="income">আয়</option><option value="expense">খরচ</option></select>
       <label>টাকার পরিমাণ</label>
       <input id="amount" type="number" min="0" placeholder="যেমন: 5000">
       <label>ক্যাটাগরি</label>
-      <select id="category">
-        <option>বেতন</option><option>ব্যবসা</option><option>খাবার</option><option>বাসা/ভাড়া</option>
-        <option>যাতায়াত</option><option>Shopping</option><option>বিল</option><option>অন্যান্য</option>
-      </select>
+      <select id="category" onchange="toggleCustomCategory()"></select>
+      <input id="customCategory" style="display:none;margin-top:8px" placeholder="নিজের ক্যাটাগরির নাম লিখুন">
+      <button type="button" id="customCategoryBtn" class="secondary" style="display:none;margin-top:8px" onclick="useCustomCategory()">⚙️ Custom Category</button>
       <label>তারিখ</label>
       <input id="date" type="date">
       <label>নোট</label>
@@ -81,10 +580,77 @@ table{width:100%;border-collapse:collapse;margin-top:12px}th,td{text-align:left;
     <div class="card">
       <div class="toolbar">
         <input id="search" placeholder="🔎 খুঁজুন..." oninput="render()">
-        <select id="filter" onchange="render()"><option value="all">সব</option><option value="income">শুধু আয়</option><option value="expense">শুধু খরচ</option></select>
+        <select id="filter" onchange="render()"><option value="all">সব হিসাব</option><option value="income">শুধু আয়</option><option value="expense">শুধু খরচ</option></select>
+        <select id="accountFilter" onchange="render()"><option value="all">সব অংশ</option><option value="personal">🏠 Daily Life</option><option value="business">🏢 Business</option></select>
       </div>
       <div id="list"></div>
     </div>
+
+
+  <div class="card money-plan">
+    <h2 style="margin-top:0">💰 Salary Money Plan</h2>
+    <div class="sub">বেতন পাওয়ার সাথে সাথে টাকা ভাগ করুন। <b>আগে নিজের ভবিষ্যৎ, তারপর খরচ।</b></div>
+    <label>এই মাসের হাতে পাওয়া বেতন</label>
+    <input id="planSalary" type="number" min="0" placeholder="যেমন: 30000" oninput="updateMoneyPlan()">
+    <label>Money Plan</label>
+    <select id="planPreset" onchange="applyPlanPreset()">
+      <option value="balanced">⚖️ Balanced — সাধারণ ব্যবস্থাপনা</option>
+      <option value="saver">💰 Saver — বেশি সঞ্চয়</option>
+      <option value="debt">💳 Debt Focus — ঋণ আগে কমানো</option>
+      <option value="custom">⚙️ Custom — নিজের শতাংশ</option>
+    </select>
+    <div id="customPlanEditor" class="plan-custom" style="display:none">
+      <label>নিজের জন্য %<input id="cSelf" type="number" min="0" max="100" value="10" oninput="updateMoneyPlan()"></label>
+      <label>পরিবার %<input id="cFamily" type="number" min="0" max="100" value="30" oninput="updateMoneyPlan()"></label>
+      <label>প্রয়োজনীয় খরচ %<input id="cNeed" type="number" min="0" max="100" value="25" oninput="updateMoneyPlan()"></label>
+      <label>Emergency %<input id="cEmergency" type="number" min="0" max="100" value="10" oninput="updateMoneyPlan()"></label>
+      <label>লক্ষ্য %<input id="cGoal" type="number" min="0" max="100" value="10" oninput="updateMoneyPlan()"></label>
+      <label>Investment %<input id="cInvest" type="number" min="0" max="100" value="10" oninput="updateMoneyPlan()"></label>
+      <label>ঋণ পরিশোধ %<input id="cDebt" type="number" min="0" max="100" value="3" oninput="updateMoneyPlan()"></label>
+      <label>আনন্দ %<input id="cFun" type="number" min="0" max="100" value="2" oninput="updateMoneyPlan()"></label>
+    </div>
+    <div class="plan-grid">
+      <div class="plan-box"><h3>🙋 নিজের জন্য</h3><div class="plan-pct" id="pSelfPct">10%</div><div class="plan-amt" id="pSelfAmt">৳0</div></div>
+      <div class="plan-box"><h3>👨‍👩‍👧 পরিবার</h3><div class="plan-pct" id="pFamilyPct">30%</div><div class="plan-amt" id="pFamilyAmt">৳0</div></div>
+      <div class="plan-box"><h3>🏠 প্রয়োজনীয় খরচ</h3><div class="plan-pct" id="pNeedPct">25%</div><div class="plan-amt" id="pNeedAmt">৳0</div></div>
+      <div class="plan-box"><h3>🛡️ Emergency Fund</h3><div class="plan-pct" id="pEmergencyPct">10%</div><div class="plan-amt" id="pEmergencyAmt">৳0</div></div>
+      <div class="plan-box"><h3>🎯 লক্ষ্য</h3><div class="plan-pct" id="pGoalPct">10%</div><div class="plan-amt" id="pGoalAmt">৳0</div></div>
+      <div class="plan-box"><h3>📈 Investment</h3><div class="plan-pct" id="pInvestPct">10%</div><div class="plan-amt" id="pInvestAmt">৳0</div></div>
+      <div class="plan-box"><h3>💳 ঋণ পরিশোধ</h3><div class="plan-pct" id="pDebtPct">3%</div><div class="plan-amt" id="pDebtAmt">৳0</div></div>
+      <div class="plan-box"><h3>🎉 আনন্দ/ব্যক্তিগত</h3><div class="plan-pct" id="pFunPct">2%</div><div class="plan-amt" id="pFunAmt">৳0</div></div>
+    </div>
+    <div id="planTotal" class="plan-total">মোট বরাদ্দ: 100% · বাকি: 0%</div>
+    <div class="plan-actions">
+      <button onclick="saveMoneyPlan()">💾 Plan Save করুন</button>
+      <button class="secondary" onclick="resetMoneyPlan()">↺ Reset</button>
+    </div>
+    <div class="sub" style="margin-top:10px">💡 <b>মূল নিয়ম:</b> বেতন আসার দিনই নিজের জন্য, Emergency Fund এবং লক্ষ্যভিত্তিক সঞ্চয়ের টাকা আলাদা করে রাখুন। এরপর বাকি টাকা দিয়ে জীবনযাত্রার খরচ পরিচালনা করুন।</div>
+  </div>
+
+  <div class="card goal-section">
+    <div class="goal-head">
+      <div>
+        <h2 style="margin:0">🎯 আমার লক্ষ্য</h2>
+        <div class="sub">Money Management ও Life Goal আলাদা করে পরিকল্পনা করুন</div>
+      </div>
+    </div>
+
+    <div class="goal-tabs">
+      <button id="moneyGoalTab" class="goal-tab active" onclick="setGoalTab('money')">💰 Money Management</button>
+      <button id="lifeGoalTab" class="goal-tab" onclick="setGoalTab('life')">❤️ Life Goal</button>
+    </div>
+
+    <div class="goal-form">
+      <select id="goalType" class="full"></select>
+      <input id="goalName" placeholder="লক্ষ্যের নাম (যেমন: জরুরি ফান্ড)">
+      <input id="goalTarget" type="number" min="0" placeholder="টার্গেট টাকা">
+      <input id="goalSaved" type="number" min="0" placeholder="এখন পর্যন্ত জমা টাকা">
+      <input id="goalDate" type="date">
+      <input id="goalNote" class="full" placeholder="নোট (ঐচ্ছিক)">
+      <button onclick="addGoal()">+ লক্ষ্য যোগ করুন</button>
+    </div>
+
+    <div id="goalsList" class="goals-grid"></div>
   </div>
 </div>
 </div>
@@ -112,7 +678,9 @@ const db = firebase.firestore();
 
 let currentUser = null;
 let items = [];
+let goals = [];
 let unsubscribeItems = null;
+let activeGoalTab = "money";
 
 /* Google Login */
 async function loginWithGoogle(){
@@ -128,7 +696,19 @@ async function loginWithGoogle(){
   }
 }
 
+// Category controls — initialize once, not on every login
+function initCategoryControls(){
+  const account=document.getElementById("accountType");
+  const type=document.getElementById("type");
+  if(!account || !type) return;
+  account.addEventListener("change", updateCategoryOptions);
+  type.addEventListener("change", updateCategoryOptions);
+  updateCategoryOptions();
+}
+
 /* Auth state: automatically loads the user's cloud data */
+initCategoryControls();
+
 auth.onAuthStateChanged(async (user)=>{
   if(!user){
     currentUser = null;
@@ -144,10 +724,11 @@ auth.onAuthStateChanged(async (user)=>{
   document.getElementById("app").style.display="block";
   document.getElementById("userName").textContent = user.displayName || "Google User";
   document.getElementById("userEmail").textContent = user.email || "";
-  document.getElementById("userPhoto").src = user.photoURL || "";
+  document.getElementById("userPhoto").src = user.photoURL || "";document.getElementById("sideUserPhoto").src=user.photoURL||"";document.getElementById("sideUserName").textContent=user.displayName||"Google User";document.getElementById("sideUserEmail").textContent=user.email||"";document.getElementById("menuUserName").textContent=user.displayName||"Google User";document.getElementById("menuUserEmail").textContent=user.email||"";
   document.getElementById("date").value = new Date().toISOString().slice(0,10);
-
   await loadCloudData();
+  // লগইন করার পর প্রথমবার অ্যাপ খুললেই Menu খোলা থাকবে
+  setTimeout(()=>openMenu(), 150);
 });
 
 /* Real-time cloud sync.
@@ -162,8 +743,14 @@ async function loadCloudData(){
   const ref = db.collection("users").doc(currentUser.uid);
 
   unsubscribeItems = ref.onSnapshot((snap)=>{
-    items = snap.exists && Array.isArray(snap.data().items) ? snap.data().items : [];
+    const data = snap.exists ? snap.data() : {};
+    items = Array.isArray(data.items) ? data.items.map(x=>({
+      ...x,
+      account: x.account || (x.category==="ব্যবসা" ? "business" : "personal")
+    })) : [];
+    goals = Array.isArray(data.goals) ? data.goals : [];
     render();
+    renderGoals();
   }, (error)=>{
     console.error(error);
     alert("Cloud data load হয়নি। Firestore Rules/Config চেক করুন।");
@@ -175,6 +762,7 @@ async function save(){
   try{
     await db.collection("users").doc(currentUser.uid).set({
       items: items,
+      goals: goals,
       email: currentUser.email || "",
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     }, {merge:true});
@@ -191,15 +779,49 @@ async function logout(){
 
 function money(n){return "৳"+Number(n).toLocaleString("en-US",{maximumFractionDigits:2})}
 
+const businessCategories={
+  income:["🛒 Product Sales / পণ্য বিক্রি","💼 Service Income / সার্ভিস আয়","📦 Wholesale Sales / পাইকারি বিক্রি","🌐 Online Sales / অনলাইন বিক্রি","💳 Customer Payment / কাস্টমারের পেমেন্ট","💰 Other Business Income / অন্যান্য ব্যবসায়িক আয়"],
+  expense:["📦 Purchase / পণ্য ক্রয়","🏭 Cost of Goods / পণ্যের খরচ","👨‍💼 Employee Salary / কর্মচারীর বেতন","🏢 Shop/Office Rent / দোকান-অফিস ভাড়া","💡 Electricity & Utilities / বিদ্যুৎ-ইউটিলিটি","📣 Marketing & Ads / মার্কেটিং-এডস","🚚 Delivery & Transport / ডেলিভারি-যাতায়াত","📱 Internet & Phone / ইন্টারনেট-ফোন","🧾 Supplier Payment / সাপ্লায়ার পেমেন্ট","🔧 Equipment & Maintenance / যন্ত্রপাতি-রক্ষণাবেক্ষণ","🏦 Business Loan / ব্যবসায়িক ঋণ","🧾 Tax & Fees / ট্যাক্স-ফি","📌 Other Business Expense / অন্যান্য ব্যবসায়িক খরচ"]
+};
+const personalCategories={
+  income:["বেতন","ব্যবসা থেকে আয়","ফ্রিল্যান্স/অনলাইন আয়","অন্যান্য আয়"],
+  expense:["খাবার","বাসা/ভাড়া","যাতায়াত","Shopping","বিল","শিক্ষা","চিকিৎসা","পরিবার","বিনোদন","অন্যান্য"]
+};
+function updateCategoryOptions(){
+  const account=document.getElementById("accountType").value;
+  const type=document.getElementById("type").value;
+  const sel=document.getElementById("category");
+  const list=account==="business"?businessCategories[type]:personalCategories[type];
+  sel.innerHTML=""; list.forEach(x=>{ const o=document.createElement("option"); o.value=x; o.textContent=x; sel.appendChild(o); }); const c=document.createElement("option"); c.value="__custom__"; c.textContent="⚙️ Custom Category"; sel.appendChild(c);
+  toggleCustomCategory();
+}
+function toggleCustomCategory(){
+  const custom=document.getElementById("category").value==="__custom__";
+  document.getElementById("customCategory").style.display=custom?"block":"none";
+  document.getElementById("customCategoryBtn").style.display=custom?"block":"none";
+}
+function useCustomCategory(){
+  const input=document.getElementById("customCategory");
+  if(!input.value.trim()){input.focus();return}
+  const sel=document.getElementById("category");
+  const opt=document.createElement("option"); opt.value=input.value.trim(); opt.textContent="⚙️ "+input.value.trim();
+  sel.insertBefore(opt,sel.querySelector('option[value="__custom__"]'));
+  sel.value=input.value.trim();
+  toggleCustomCategory();
+}
+
 async function addItem(){
   const amount=Number(document.getElementById("amount").value);
   if(!amount || amount<0){alert("সঠিক টাকার পরিমাণ দিন");return}
+  let category=document.getElementById("category").value;
+  if(category==="__custom__"){category=document.getElementById("customCategory").value.trim();if(!category){alert("Custom Category-এর নাম লিখুন");return}}
 
   items.unshift({
     id:Date.now(),
+    account:document.getElementById("accountType").value,
     type:document.getElementById("type").value,
     amount,
-    category:document.getElementById("category").value,
+    category,
     date:document.getElementById("date").value,
     note:document.getElementById("note").value.trim()
   });
@@ -207,6 +829,8 @@ async function addItem(){
   await save();
   document.getElementById("amount").value="";
   document.getElementById("note").value="";
+  document.getElementById("customCategory").value="";
+  updateCategoryOptions();
   render();
 }
 
@@ -224,38 +848,439 @@ async function clearAll(){
   }
 }
 
-function render(){
-  let inc=items.filter(x=>x.type==="income").reduce((a,x)=>a+x.amount,0);
-  let exp=items.filter(x=>x.type==="expense").reduce((a,x)=>a+x.amount,0);
-  document.getElementById("income").textContent=money(inc);
-  document.getElementById("expense").textContent=money(exp);
-  document.getElementById("balance").textContent=money(inc-exp);
 
-  const q=document.getElementById("search").value.toLowerCase();
-  const f=document.getElementById("filter").value;
-  let data=items.filter(x=>
-    (f==="all"||x.type===f) &&
-    ((x.category+" "+x.note).toLowerCase().includes(q))
-  );
+
+
+const moneyPlanPresets={balanced:[10,30,25,10,10,10,3,2],saver:[15,25,20,15,10,10,3,2],debt:[10,25,20,10,10,5,18,2],custom:[10,30,25,10,10,10,3,2]};
+const planKeys=["Self","Family","Need","Emergency","Goal","Invest","Debt","Fun"];
+const customIds=["cSelf","cFamily","cNeed","cEmergency","cGoal","cInvest","cDebt","cFun"];
+function moneyPlanValues(){const p=document.getElementById("planPreset").value;if(p==="custom")return customIds.map(id=>Number(document.getElementById(id).value)||0);return moneyPlanPresets[p]||moneyPlanPresets.balanced}
+function applyPlanPreset(){const p=document.getElementById("planPreset").value;document.getElementById("customPlanEditor").style.display=p==="custom"?"grid":"none";const v=moneyPlanPresets[p]||moneyPlanPresets.balanced;customIds.forEach((id,i)=>document.getElementById(id).value=v[i]);updateMoneyPlan()}
+function updateMoneyPlan(){const salary=Number(document.getElementById("planSalary").value)||0,v=moneyPlanValues();planKeys.forEach((k,i)=>{document.getElementById("p"+k+"Pct").textContent=v[i]+"%";document.getElementById("p"+k+"Amt").textContent=money(salary*v[i]/100)});const total=v.reduce((a,b)=>a+b,0);document.getElementById("planTotal").textContent="মোট বরাদ্দ: "+total+"% · বাকি: "+(100-total)+"%"}
+function saveMoneyPlan(){const v=moneyPlanValues(),total=v.reduce((a,b)=>a+b,0);if(total!==100){alert("Plan Save করতে মোট শতাংশ 100% হতে হবে। এখন "+total+"% হয়েছে।");return}localStorage.setItem("amarTakaMoneyPlan",JSON.stringify({salary:Number(document.getElementById("planSalary").value)||0,preset:document.getElementById("planPreset").value,values:v}));alert("✅ Money Plan Save হয়েছে।")}
+function resetMoneyPlan(){localStorage.removeItem("amarTakaMoneyPlan");document.getElementById("planSalary").value="";document.getElementById("planPreset").value="balanced";applyPlanPreset()}
+function loadMoneyPlan(){try{const d=JSON.parse(localStorage.getItem("amarTakaMoneyPlan")||"null");if(d){document.getElementById("planSalary").value=d.salary||"";document.getElementById("planPreset").value=d.preset||"balanced";if(Array.isArray(d.values))d.values.forEach((v,i)=>document.getElementById(customIds[i]).value=v)}}catch(e){}applyPlanPreset()}
+
+function openMenu(){document.getElementById("sideMenu").classList.add("open");document.getElementById("menuOverlay").classList.add("open")}
+function closeMenu(){document.getElementById("sideMenu").classList.remove("open");document.getElementById("menuOverlay").classList.remove("open")}
+function goMenu(where){closeMenu();const d=document.getElementById("pfDashboard");if(where==="top")window.scrollTo({top:0,behavior:"smooth"});else if(where==="money")document.querySelector(".layout").scrollIntoView({behavior:"smooth"});else if(where==="salaryPlan")document.querySelector(".money-plan").scrollIntoView({behavior:"smooth"});else if(where==="goals")document.querySelector(".goal-section").scrollIntoView({behavior:"smooth"});else if(["budget","emergency","debt","bills"].includes(where))d?.scrollIntoView({behavior:"smooth"})}
+function showReport(){closeMenu();let inc=items.filter(x=>x.type==="income").reduce((a,x)=>a+x.amount,0),exp=items.filter(x=>x.type==="expense").reduce((a,x)=>a+x.amount,0);alert("📊 রিপোর্ট\n\nমোট আয়: "+money(inc)+"\nমোট খরচ: "+money(exp)+"\nব্যালেন্স: "+money(inc-exp))}
+function exportData(){closeMenu();let blob=new Blob([JSON.stringify({version:2,email:currentUser?.email||"",items,goals},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="amar-taka-backup.json";a.click()}
+const moneyGoalTypes = [
+  ["loan","🏦 Loan / ঋণ"],
+  ["fdr","🏛️ FDR"],
+  ["dps","💳 DPS"],
+  ["share","📈 Share Market"],
+  ["investment","💼 অন্যান্য বিনিয়োগ"],
+  ["emergency","🛟 Emergency Fund"],
+  ["savings","💰 Savings"],
+  ["other_money","📌 অন্যান্য Money Goal"]
+];
+
+const lifeGoalTypes = [
+  ["house","🏠 বাড়ি কেনা/তৈরি"],
+  ["car","🚗 গাড়ি কেনা"],
+  ["education","🎓 শিক্ষা"],
+  ["travel","✈️ ভ্রমণ"],
+  ["marriage","💍 বিয়ে"],
+  ["family","👨‍👩‍👧 পরিবার"],
+  ["retirement","🌅 Retirement"],
+  ["business","🚀 ব্যবসা শুরু"],
+  ["other_life","❤️ অন্যান্য Life Goal"]
+];
+
+function setGoalTab(tab){
+  activeGoalTab = tab;
+  document.getElementById("moneyGoalTab").classList.toggle("active", tab==="money");
+  document.getElementById("lifeGoalTab").classList.toggle("active", tab==="life");
+  const types = tab==="money" ? moneyGoalTypes : lifeGoalTypes;
+  document.getElementById("goalType").innerHTML =
+    types.map(x=>`<option value="${x[0]}">${x[1]}</option>`).join("");
+  renderGoals();
+}
+
+function goalTypeLabel(type){
+  const all = [...moneyGoalTypes,...lifeGoalTypes];
+  const found = all.find(x=>x[0]===type);
+  return found ? found[1] : "🎯 Goal";
+}
+
+async function addGoal(){
+  const name = document.getElementById("goalName").value.trim();
+  const target = Number(document.getElementById("goalTarget").value);
+  const saved = Number(document.getElementById("goalSaved").value || 0);
+  if(!name){ alert("লক্ষ্যের নাম দিন"); return; }
+  if(!target || target <= 0){ alert("সঠিক টার্গেট টাকা দিন"); return; }
+  if(saved < 0){ alert("জমা টাকা সঠিকভাবে দিন"); return; }
+
+  goals.unshift({
+    id: Date.now(),
+    tab: activeGoalTab,
+    type: document.getElementById("goalType").value,
+    name,
+    target,
+    saved: Math.min(saved,target),
+    date: document.getElementById("goalDate").value,
+    note: document.getElementById("goalNote").value.trim()
+  });
+
+  await save();
+  document.getElementById("goalName").value="";
+  document.getElementById("goalTarget").value="";
+  document.getElementById("goalSaved").value="";
+  document.getElementById("goalDate").value="";
+  document.getElementById("goalNote").value="";
+  renderGoals();
+}
+
+async function deleteGoal(id){
+  if(confirm("এই লক্ষ্যটি মুছে ফেলবেন?")){
+    goals = goals.filter(g=>g.id!==id);
+    await save();
+    renderGoals();
+  }
+}
+
+async function addGoalMoney(id){
+  const goal = goals.find(g=>g.id===id);
+  if(!goal) return;
+  const amount = Number(prompt("কত টাকা জমা হয়েছে?", "0"));
+  if(!amount || amount<=0) return;
+  goal.saved = Math.min(goal.target, goal.saved + amount);
+  await save();
+  renderGoals();
+}
+
+function renderGoals(){
+  const list = document.getElementById("goalsList");
+  if(!list) return;
+  const data = goals.filter(g=>g.tab===activeGoalTab);
 
   if(!data.length){
-    document.getElementById("list").innerHTML='<div class="empty">এখনও কোনো হিসাব নেই।<br>বাম পাশ থেকে প্রথম হিসাবটি যোগ করুন।</div>';
+    list.innerHTML = `<div class="goal-empty" style="grid-column:1/-1">
+      এখনো কোনো ${activeGoalTab==="money"?"Money Management":"Life"} Goal যোগ করা হয়নি।
+    </div>`;
     return;
   }
 
-  document.getElementById("list").innerHTML=`<table><thead><tr><th>তারিখ</th><th>ধরন</th><th>ক্যাটাগরি</th><th>নোট</th><th>টাকা</th><th></th></tr></thead><tbody>${
-    data.map(x=>`<tr><td>${x.date||"-"}</td><td>${x.type==="income"?"🟢 আয়":"🔴 খরচ"}</td><td>${x.category}</td><td>${x.note||"-"}</td><td><b>${money(x.amount)}</b></td><td><button class="danger" onclick="del(${x.id})">মুছুন</button></td></tr>`).join("")
+  list.innerHTML = data.map(g=>{
+    const pct = Math.min(100, Math.round((g.saved/g.target)*100));
+    return `<div class="goal-card">
+      <div class="goal-title">${escapeHtml(g.name)}</div>
+      <div class="goal-meta">${goalTypeLabel(g.type)}${g.date ? " • লক্ষ্য: "+g.date : ""}</div>
+      <div class="goal-bar"><div class="goal-fill" style="width:${pct}%"></div></div>
+      <div class="goal-amount"><span>${money(g.saved)} জমা</span><b>${pct}%</b><span>টার্গেট ${money(g.target)}</span></div>
+      ${g.note ? `<div class="goal-meta">${escapeHtml(g.note)}</div>` : ""}
+      <div class="goal-actions">
+        <button class="secondary" onclick="addGoalMoney(${g.id})">+ টাকা যোগ</button>
+        <button class="danger" onclick="deleteGoal(${g.id})">মুছুন</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function escapeHtml(value){
+  return String(value).replace(/[&<>"']/g, s=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[s]));
+}
+
+function setAccountView(account){
+  document.querySelectorAll(".account-switch-btn").forEach((b,i)=>{
+    b.classList.toggle("active",["all","personal","business"][i]===account);
+  });
+  const f=document.getElementById("accountFilter"); if(f)f.value=account;
+  render();
+}
+function render(){
+  const normalized=items.map(x=>({...x,account:x.account||(x.category==="ব্যবসা"?"business":"personal")}));
+  const totals=(arr,type)=>arr.filter(x=>!type||x.type===type).reduce((a,x)=>a+Number(x.amount||0),0);
+  const personal=normalized.filter(x=>x.account==="personal");
+  const business=normalized.filter(x=>x.account==="business");
+  const pi=totals(personal,"income"),pe=totals(personal,"expense"),bi=totals(business,"income"),be=totals(business,"expense");
+  document.getElementById("income").textContent=money(pi+bi);
+  document.getElementById("expense").textContent=money(pe+be);
+  document.getElementById("balance").textContent=money(pi+bi-pe-be);
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+  set("allAccountBalance",money(pi+bi-pe-be));
+  set("personalAccountBalance",money(pi-pe));set("businessAccountBalance",money(bi-be));
+  set("personalIncome","আয় "+money(pi));set("personalExpense","খরচ "+money(pe));
+  set("businessIncome","আয় "+money(bi));set("businessExpense","খরচ "+money(be));
+  if(typeof renderPfDashboard==="function") renderPfDashboard();
+  if(typeof renderBusinessSuite==="function") renderBusinessSuite();
+
+  const q=(document.getElementById("search").value||"").toLowerCase();
+  const f=document.getElementById("filter").value;
+  const af=document.getElementById("accountFilter")?.value||"all";
+  let data=normalized.filter(x=>
+    (f==="all"||x.type===f) &&
+    (af==="all"||x.account===af) &&
+    ((x.category+" "+x.note).toLowerCase().includes(q))
+  );
+  if(!data.length){
+    document.getElementById("list").innerHTML='<div class="empty">এই অংশে এখনো কোনো হিসাব নেই।<br>উপরের ফর্ম থেকে হিসাব যোগ করুন।</div>'; return;
+  }
+  document.getElementById("list").innerHTML=`<table><thead><tr><th>তারিখ</th><th>অংশ</th><th>ধরন</th><th>ক্যাটাগরি</th><th>নোট</th><th>টাকা</th><th></th></tr></thead><tbody>${
+    data.map(x=>`<tr><td>${x.date||"-"}</td><td>${x.account==="business"?"🏢 Business":"🏠 Daily Life"}</td><td>${x.type==="income"?"🟢 আয়":"🔴 খরচ"}</td><td>${x.category}</td><td>${x.note||"-"}</td><td><b>${money(x.amount)}</b></td><td><button class="danger" onclick="del(${x.id})">মুছুন</button></td></tr>`).join("")
   }</tbody></table>`;
 }
-</script></script>
+
+loadMoneyPlan();
+
+const PF_KEY="amarTakaFinancePro";
+let pfSettings={budget:0,emergency:0,debt:0,debtPaid:0,assets:0,bills:[]};
+
+function loadPfSettings(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(PF_KEY)||"{}");
+    pfSettings={...pfSettings,...saved};
+    document.getElementById("pfBudgetInput").value=pfSettings.budget||"";
+    document.getElementById("pfEmergencyInput").value=pfSettings.emergency||"";
+    document.getElementById("pfDebtInput").value=pfSettings.debt||"";
+    document.getElementById("pfDebtPaidInput").value=pfSettings.debtPaid||"";
+    document.getElementById("pfAssetsInput").value=pfSettings.assets||"";
+    renderPfBills();
+  }catch(e){console.warn(e)}
+}
+function savePfSettings(){localStorage.setItem(PF_KEY,JSON.stringify(pfSettings))}
+function savePfBudget(){pfSettings.budget=Number(document.getElementById("pfBudgetInput").value)||0;savePfSettings();renderPfDashboard()}
+function savePfEmergency(){pfSettings.emergency=Number(document.getElementById("pfEmergencyInput").value)||0;savePfSettings();renderPfDashboard()}
+function savePfDebt(){pfSettings.debt=Number(document.getElementById("pfDebtInput").value)||0;pfSettings.debtPaid=Math.min(pfSettings.debt,Number(document.getElementById("pfDebtPaidInput").value)||0);savePfSettings();renderPfDashboard()}
+function savePfAssets(){pfSettings.assets=Number(document.getElementById("pfAssetsInput").value)||0;savePfSettings();renderPfDashboard()}
+
+function pfThisMonth(x){
+  const now=new Date(), d=new Date(x.date+"T12:00:00");
+  return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+}
+function pfMonthKey(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
+function pfMonthLabel(key){
+  const [y,m]=key.split("-").map(Number);
+  return new Date(y,m-1,1).toLocaleDateString("en-US",{month:"short"});
+}
+function pfLast6(){
+  const now=new Date(), arr=[];
+  for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);arr.push(pfMonthKey(d))}
+  return arr;
+}
+function pfTotals(){
+  const mine=items.filter(pfThisMonth);
+  const income=mine.filter(x=>x.type==="income").reduce((a,x)=>a+Number(x.amount||0),0);
+  const expense=mine.filter(x=>x.type==="expense").reduce((a,x)=>a+Number(x.amount||0),0);
+  const saving=Math.max(0,income-expense);
+  const cats={};
+  mine.filter(x=>x.type==="expense").forEach(x=>cats[x.category]=(cats[x.category]||0)+Number(x.amount||0));
+  const top=Object.entries(cats).sort((a,b)=>b[1]-a[1])[0];
+  return {income,expense,saving,cats,top};
+}
+function pfMoney(n){return "৳"+Math.round(n||0).toLocaleString("en-US")}
+
+function renderPfDashboard(){
+  if(!document.getElementById("pfDashboard")) return;
+  const t=pfTotals();
+
+  const budget=Number(pfSettings.budget||0);
+  const budgetPct=budget?Math.min(100,t.expense/budget*100):0;
+  document.getElementById("pfBudgetUsed").textContent=pfMoney(t.expense);
+  document.getElementById("pfBudgetPct").textContent=Math.round(budgetPct)+"% used";
+  document.getElementById("pfBudgetLeft").textContent="বাকি "+pfMoney(Math.max(0,budget-t.expense));
+  document.getElementById("pfBudgetBar").style.width=budgetPct+"%";
+
+  const emergencyTarget=Math.max(1,(t.expense||1)*6);
+  const emergencyPct=Math.min(100,(Number(pfSettings.emergency||0)/emergencyTarget)*100);
+  document.getElementById("pfEmergencyValue").textContent=pfMoney(pfSettings.emergency);
+  document.getElementById("pfEmergencyPct").textContent=Math.round(emergencyPct)+"% of target";
+  document.getElementById("pfEmergencyMonths").textContent=(Number(pfSettings.emergency||0)/(t.expense||1)).toFixed(1)+" মাস";
+  document.getElementById("pfEmergencyBar").style.width=emergencyPct+"%";
+
+  const debt=Number(pfSettings.debt||0);
+  const debtPaid=Math.min(debt,Number(pfSettings.debtPaid||0)); const debtPct=debt?Math.min(100,debtPaid/debt*100):100;
+  document.getElementById("pfDebtValue").textContent=pfMoney(debtPaid);
+  document.getElementById("pfDebtPct").textContent=Math.round(debtPct)+"% paid";
+  document.getElementById("pfDebtRemain").textContent="বাকি "+pfMoney(Math.max(0,debt-debtPaid));
+  document.getElementById("pfDebtBar").style.width=debtPct+"%";
+
+  const savingsRate=t.income?(t.saving/t.income*100):0;
+  document.getElementById("pfSavingsRate").textContent=Math.round(savingsRate)+"%";
+  document.getElementById("pfSavingsBar").style.width=Math.min(100,savingsRate)+"%";
+  document.getElementById("pfSavingsAmount").textContent=pfMoney(t.saving);
+
+  document.getElementById("pfReportIncome").textContent=pfMoney(t.income);
+  document.getElementById("pfReportExpense").textContent=pfMoney(t.expense);
+  document.getElementById("pfReportSaving").textContent=pfMoney(t.saving);
+  document.getElementById("pfReportCategory").textContent=t.top?t.top[0]+" ("+pfMoney(t.top[1])+")":"—";
+
+  const net=Number(pfSettings.assets||0)-debt;
+  document.getElementById("pfNetWorth").textContent=pfMoney(net);
+  document.getElementById("pfAssets").textContent=pfMoney(pfSettings.assets);
+  document.getElementById("pfLiabilities").textContent=pfMoney(debt);
+  const ring=Math.min(100,Number(pfSettings.assets||0)?Math.max(0,net/Number(pfSettings.assets)*100):0);
+  document.getElementById("pfNetRing").style.strokeDashoffset=302-(302*ring/100);
+
+  const score=Math.min(100,Math.round(savingsRate*0.45+(budget?Math.max(0,100-budgetPct)*0.30:0)+(emergencyPct*0.25)));
+  document.getElementById("pfHealthScore").textContent=score+"/100";
+  document.getElementById("pfHealthLabel").textContent=score>=80?"দারুণ! আপনার money habit শক্তিশালী 💪":score>=60?"ভালো, আরও উন্নতি করা সম্ভব 👍":score>=40?"মাঝারি — বাজেট ও সঞ্চয়ে ফোকাস করুন":"শুরু করুন: আগে হিসাব + বাজেট সেট করুন";
+  document.getElementById("pfHealthSaving").textContent=Math.round(savingsRate)+"%";
+  document.getElementById("pfHealthBudget").textContent=budget?Math.round(100-budgetPct)+"%":"—";
+  document.getElementById("pfHealthEmergency").textContent=Math.round(emergencyPct)+"%";
+
+  renderPfChart();
+}
+function renderPfChart(){
+  const svg=document.getElementById("pfChart"); if(!svg)return;
+  const keys=pfLast6(), vals=keys.map(k=>({i:0,e:0}));
+  items.forEach(x=>{
+    const d=new Date(x.date+"T12:00:00"), k=pfMonthKey(d), idx=keys.indexOf(k);
+    if(idx>=0) vals[idx][x.type==="income"?"i":"e"]+=Number(x.amount||0);
+  });
+  const max=Math.max(1,...vals.flatMap(v=>[v.i,v.e])), W=620,H=235,left=42,right=10,top=12,bottom=35,innerW=W-left-right,innerH=H-top-bottom;
+  let s=`<line x1="${left}" y1="${top+innerH}" x2="${W-right}" y2="${top+innerH}" stroke="#dfe4ec"/>`;
+  [0,.5,1].forEach(p=>{const y=top+innerH-(innerH*p);s+=`<line x1="${left}" y1="${y}" x2="${W-right}" y2="${y}" stroke="#eef1f5"/>`});
+  const step=innerW/keys.length, bw=Math.min(20,step*.23);
+  vals.forEach((v,i)=>{
+    const x=left+step*i+step/2, ih=innerH*v.i/max, eh=innerH*v.e/max;
+    s+=`<rect x="${x-bw-2}" y="${top+innerH-ih}" width="${bw}" height="${ih}" rx="4" fill="#16a36d"/>`;
+    s+=`<rect x="${x+2}" y="${top+innerH-eh}" width="${bw}" height="${eh}" rx="4" fill="#ef4b55"/>`;
+    s+=`<text x="${x}" y="${H-10}" text-anchor="middle" font-size="11" fill="#667085">${pfMonthLabel(keys[i])}</text>`;
+  });
+  svg.innerHTML=s;
+  const last=vals[vals.length-1], prev=vals[vals.length-2]||{i:0,e:0};
+  const trend=last.i-last.e;
+  document.getElementById("pfTrendText").textContent=trend>=0?"↑ Positive cashflow":"↓ Expense বেশি";
+}
+function renderPfBills(){
+  const el=document.getElementById("pfBills"); if(!el)return;
+  if(!pfSettings.bills?.length){el.innerHTML='<div class="pf-muted" style="padding-top:12px">এখনও কোনো বিল যোগ করা হয়নি।</div>';return}
+  const sorted=[...pfSettings.bills].sort((a,b)=>a.date.localeCompare(b.date));
+  el.innerHTML=sorted.map((b,i)=>`<div class="pf-bill"><div class="pf-bill-top"><span>🔔 ${escapeHtml(b.name)}</span><span>${pfMoney(b.amount)}</span></div><div class="pf-row pf-muted"><span>${b.date}</span><button class="pf-small-btn" style="margin:0!important" onclick="deletePfBill(${i})">মুছুন</button></div></div>`).join("");
+}
+function addPfBill(){
+  const name=document.getElementById("pfBillName").value.trim(), amount=Number(document.getElementById("pfBillAmount").value)||0, date=document.getElementById("pfBillDate").value;
+  if(!name||!amount||!date){alert("বিলের নাম, টাকা ও তারিখ দিন।");return}
+  pfSettings.bills=pfSettings.bills||[];pfSettings.bills.push({name,amount,date});savePfSettings();
+  document.getElementById("pfBillName").value="";document.getElementById("pfBillAmount").value="";document.getElementById("pfBillDate").value="";
+  renderPfBills();
+}
+function deletePfBill(i){pfSettings.bills.splice(i,1);savePfSettings();renderPfBills()}
+function pfMonthlyReport(){
+  const t=pfTotals();
+  alert("📊 Monthly Report\n\nমোট আয়: "+pfMoney(t.income)+"\nমোট খরচ: "+pfMoney(t.expense)+"\nসঞ্চয়: "+pfMoney(t.saving)+"\nসঞ্চয় হার: "+(t.income?Math.round(t.saving/t.income*100):0)+"%\nসবচেয়ে বেশি খরচ: "+(t.top?t.top[0]+" — "+pfMoney(t.top[1]):"কোনো তথ্য নেই"));
+}
+loadPfSettings();loadNotes();
+
+/* Business Finance Suite */
+
+/* Separate Business Notes + Daily Life Notes */
+const NOTES_KEY="amarTakaSeparateNotes";
+let activeNotesType="business";
+let notesData={business:[],life:[]};
+
+function loadNotes(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(NOTES_KEY)||"{}");
+    notesData={business:Array.isArray(saved.business)?saved.business:[],life:Array.isArray(saved.life)?saved.life:[]};
+  }catch(e){notesData={business:[],life:[]}}
+  renderNotes();
+}
+function saveNotesData(){localStorage.setItem(NOTES_KEY,JSON.stringify(notesData))}
+function switchNotes(type){
+  activeNotesType=type;
+  document.getElementById("businessNotesTab").classList.toggle("active",type==="business");
+  document.getElementById("lifeNotesTab").classList.toggle("active",type==="life");
+  document.getElementById("notesTitle").textContent=type==="business"?"🏢 Business Notes":"🏠 Daily Life Notes";
+  document.getElementById("notesSubtitle").textContent=type==="business"
+    ?"Business ideas, customer follow-up, supplier information, plans & tasks"
+    :"Daily plans, family tasks, personal reminders, shopping & important things";
+  document.getElementById("notesListTitle").textContent=type==="business"?"Business Notes":"Daily Life Notes";
+  clearNoteEditor();renderNotes();
+}
+function saveCurrentNote(){
+  const title=document.getElementById("noteTitleInput").value.trim();
+  const body=document.getElementById("noteBodyInput").value.trim();
+  if(!title && !body){alert("নোট লিখুন।");return}
+  notesData[activeNotesType].unshift({
+    id:Date.now(),title:title||"Untitled Note",body,date:new Date().toLocaleString("bn-BD")
+  });
+  saveNotesData();clearNoteEditor();renderNotes();
+}
+function clearNoteEditor(){
+  const t=document.getElementById("noteTitleInput"),b=document.getElementById("noteBodyInput");
+  if(t)t.value="";if(b)b.value="";
+}
+function deleteNote(id){
+  notesData[activeNotesType]=notesData[activeNotesType].filter(n=>n.id!==id);
+  saveNotesData();renderNotes();
+}
+function renderNotes(){
+  const list=document.getElementById("notesList");if(!list)return;
+  const data=notesData[activeNotesType]||[];
+  document.getElementById("notesCount").textContent=data.length+" notes";
+  if(!data.length){list.innerHTML='<div class="notes-empty">📝 এখনো কোনো নোট নেই।<br>উপরের বক্স থেকে প্রথম নোটটি লিখুন।</div>';return}
+  list.innerHTML=data.map(n=>`<div class="note-item">
+    <div class="note-item-top"><h4>${escapeHtml(n.title)}</h4><button class="note-delete" onclick="deleteNote(${n.id})">মুছুন</button></div>
+    <p>${escapeHtml(n.body)}</p><div class="pf-muted" style="margin-top:8px">${escapeHtml(n.date)}</div>
+  </div>`).join("");
+}
+function sideGo(where){
+  document.querySelectorAll(".side-nav").forEach(x=>x.classList.remove("active"));
+  const target =
+    where==="dashboard" ? document.getElementById("pfDashboard") :
+    where==="business"||where==="cashflow"||where==="customers"||where==="suppliers"||where==="inventory"||where==="profit" ? document.getElementById("businessWorkspace") :
+    where==="notes" ? document.getElementById("notesWorkspace") :
+    where==="money" ? document.querySelector(".layout") :
+    where==="salary" ? document.querySelector(".money-plan") :
+    document.getElementById("pfDashboard");
+  if(target)target.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function openBusinessQuick(){
+  document.getElementById("accountType").value="business";
+  document.getElementById("type").value="income";
+  document.querySelector(".layout")?.scrollIntoView({behavior:"smooth"});
+  setTimeout(()=>document.getElementById("amount")?.focus(),400);
+}
+function businessAction(type){
+  if(type==="sale"){document.getElementById("type").value="income";openBusinessQuick()}
+  else alert("Return entry-এর জন্য আলাদা Business Sales module পরের ধাপে যোগ করা যাবে।");
+}
+function renderBusinessSuite(){
+  const all=(items||[]).filter(x=>(x.account||(x.category==="ব্যবসা"?"business":"personal"))==="business"), now=new Date();
+  const month=all.filter(x=>{const d=new Date(x.date+"T12:00:00");return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear()});
+  const today=all.filter(x=>x.date===now.toISOString().slice(0,10));
+  const inc=month.filter(x=>x.type==="income").reduce((a,x)=>a+Number(x.amount||0),0);
+  const exp=month.filter(x=>x.type==="expense").reduce((a,x)=>a+Number(x.amount||0),0);
+  const todaySales=today.filter(x=>x.type==="income").reduce((a,x)=>a+Number(x.amount||0),0);
+  const profit=inc-exp;
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+  const pct=(v,max)=>Math.min(100,max?Math.max(0,v/max*100):0);
+  const fmt=n=>"৳"+Math.round(n).toLocaleString("en-US");
+  set("bizTodaySales",fmt(todaySales));set("bizMonthIncome",fmt(inc));set("bizMonthExpense",fmt(exp));set("bizProfit",fmt(profit));
+  set("bizProfitBig",fmt(profit));set("bizProfitStatus",profit>0?"লাভ হচ্ছে ✅":profit<0?"খরচ বেশি ⚠️":"ডাটা প্রয়োজন");
+  set("bizReceivable","৳0");set("bizPayable","৳0");set("bizNetPosition",fmt(profit));
+  set("bizStockHint","0");
+  const base=Math.max(inc,exp,profit>0?profit:0,1);
+  [["bizIncomeBar",inc],["bizExpenseBar",exp],["bizProfitBar",Math.max(0,profit)]].forEach(([id,v])=>{const e=document.getElementById(id);if(e)e.style.width=pct(v,base)+"%"});
+  set("bizIncomePct",Math.round(pct(inc,base))+"%");set("bizExpensePct",Math.round(pct(exp,base))+"%");set("bizProfitPct",Math.round(pct(Math.max(0,profit),base))+"%");
+}
+function syncSideUser(){
+  const n=document.getElementById("userName"),e=document.getElementById("userEmail"),p=document.getElementById("userPhoto");
+  const sn=document.getElementById("sideUserName"),se=document.getElementById("sideUserEmail"),sp=document.getElementById("sideUserPhoto");
+  if(n&&sn)sn.textContent=n.textContent||"Google User";if(e&&se)se.textContent=e.textContent||"";
+  if(p&&sp)sp.src=p.src||"";
+}
+const oldRenderBusiness = window.render;
+setTimeout(()=>{syncSideUser();renderBusinessSuite()},500);
+
+</script>
+
+<script id="business-render-hook">
+(function(){
+  const originalRender=window.render;
+  if(typeof originalRender==="function" && !window.__businessRenderWrapped){
+    window.render=function(){const r=originalRender.apply(this,arguments);try{renderBusinessSuite();syncSideUser()}catch(e){}return r};
+    window.__businessRenderWrapped=true;
+  }
+})();
+</script>
+
 </body>
 </html>
-mkdir amar-taka-app
-cd amar-taka-app
-npm init -y
-npm install @capacitor/core @capacitor/cli
-npx cap init
-npm install @capacitor/android
-npx cap add android
-npx cap copy
-npx cap open android
