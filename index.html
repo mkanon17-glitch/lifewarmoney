@@ -250,3 +250,12 @@ function render(){
 </script></script>
 </body>
 </html>
+mkdir amar-taka-app
+cd amar-taka-app
+npm init -y
+npm install @capacitor/core @capacitor/cli
+npx cap init
+npm install @capacitor/android
+npx cap add android
+npx cap copy
+npx cap open android
